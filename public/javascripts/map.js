@@ -1,4 +1,7 @@
-var mymap = L.map('map').setView([-7.2575, 112.7521], 13);
+var trafo_array = JSON.parse(dataTrafos);
+var petugas_array = JSON.parse(dataPetugass);
+
+var mymap = L.map('map').setView([112.768845, -7.250445], 13);
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 	maxZoom: 18,
@@ -22,5 +25,32 @@ var iconTeknisi = L.icon({
 	popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
-L.marker([-7.2575, 112.7521], {icon : trafoIcon}).addTo(mymap);
-L.marker([-7.2575, 112.7621], {icon : iconTeknisi}).addTo(mymap);
+console.log(trafo_array);
+trafo_array.forEach(trafo => {
+    L.marker([trafo.longitude, trafo.latitude], {icon : trafoIcon}).addTo(mymap); 
+});
+
+petugas_array.forEach(petugas => {
+    L.marker([petugas.longitude, petugas.latitude], {icon : iconTeknisi}).addTo(mymap); 
+});
+
+// L.marker([-7.2575, 112.7521], {icon : trafoIcon}).addTo(mymap); //hardcode
+// L.marker([-7.2575, 112.7621], {icon : iconTeknisi}).addTo(mymap);//hardcode
+var shelter1 = L.marker([-7.2575, 112.7521], {icon : trafoIcon}); //hardcode
+var shelter2 = L.marker([-7.2575, 112.7621], {icon : iconTeknisi});//hardcode
+
+var shelterMarkers = new L.FeatureGroup();
+
+shelterMarkers.addLayer(shelter1);
+shelterMarkers.addLayer(shelter2);
+
+mymap.on('zoomend', function() {
+	console.log(mymap.getZoom());
+	
+    if (mymap.getZoom() < 14){
+            mymap.removeLayer(shelterMarkers);
+    }
+    else {
+            mymap.addLayer(shelterMarkers);
+        }
+});
