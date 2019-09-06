@@ -1,5 +1,6 @@
 var trafo_array = JSON.parse(dataTrafos);
 var petugas_array = JSON.parse(dataPetugass);
+var shelterMarkers = new L.FeatureGroup();
 
 var mymap = L.map('map').setView([-7.2575, 112.7521], 13);
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -26,23 +27,33 @@ var iconTeknisi = L.icon({
 });
 
 trafo_array.forEach(trafo => {
-	var trafoMarker = L.marker([trafo.longitude, trafo.latitude], {icon : trafoIcon}).addTo(mymap); 
+	var trafoMarker = L.marker([trafo.longitude, trafo.latitude], {icon : trafoIcon}); 
 	trafoMarker.bindPopup(
 		"<strong>" +
 		"id: " + trafo.id + 
 		"<br>status: " + trafo.status + 
 		"<strong>" 
 	);
-
+	shelterMarkers.addLayer(trafoMarker);
 });
 
 petugas_array.forEach(petugas => {
-   var petugasMarker = L.marker([petugas.longitude, petugas.latitude], {icon : iconTeknisi}).addTo(mymap); 
+   var petugasMarker = L.marker([petugas.longitude, petugas.latitude], {icon : iconTeknisi}); 
    petugasMarker.bindPopup(
 	   "<strong>" +
 	   "id: " + petugas.id + 
 	   "<br>nama: " + petugas.name + 
 	   "<br>status: " + petugas.status +
 	   "</strong>"
-   )
+   );
+   shelterMarkers.addLayer(petugasMarker);
+});
+
+mymap.on('zoomend', function() {
+    if (mymap.getZoom() < 15){
+        mymap.removeLayer(shelterMarkers);
+    }
+    else {
+        mymap.addLayer(shelterMarkers);
+    }
 });
